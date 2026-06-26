@@ -17,6 +17,7 @@
   var devamBekliyor = false; // [ devam etmek icin dokun ] bekleniyor mu
   var sahneNo = 0;           // sonraki yazilacak sahnenin sirasi
   var dinleyiciAcik = false; // genel girdi dinleyicisi takildi mi
+  var bittiEffektBekliyor = false; // son sahne sonrasi harf dokulme bekleniyor mu
 
   /* --- Acilis (bekleme) sahnesi ------------------------------------------ */
   var acilis = [
@@ -256,6 +257,89 @@
     kaydir();
   }
 
+  function sonHintGoster() {
+    var el = document.createElement("div");
+    el.className = "satir son-dokun";
+    el.textContent = "[ son bir kez dokun ]";
+    ekran.appendChild(el);
+    kaydir();
+  }
+
+  /* Son sahneden sonra: ekrandaki tum harfleri tek tek dokup dusur */
+  function harfDokulmesi() {
+    if (azalt) {
+      ekran.style.transition = "opacity 0.5s ease";
+      ekran.style.opacity = "0";
+      setTimeout(function () {
+        ekran.style.transition = "";
+        ekran.style.opacity = "";
+        ekran.innerHTML = "";
+        sonImlec();
+      }, 520);
+      return;
+    }
+
+    var katman = document.createElement("div");
+    katman.className = "dokulen-katman";
+    var ce = window.getComputedStyle(ekran);
+    katman.style.fontFamily = ce.fontFamily;
+    katman.style.fontSize = ce.fontSize;
+    document.body.appendChild(katman);
+
+    var gezgin = document.createTreeWalker(ekran, NodeFilter.SHOW_TEXT, null);
+    var dugum, enGec = 0;
+    var parcalar = [];
+
+    while ((dugum = gezgin.nextNode())) {
+      var metin = dugum.nodeValue;
+      if (!metin) continue;
+      var ps = window.getComputedStyle(dugum.parentNode);
+      var renk = ps.color, agirlik = ps.fontWeight, egim = ps.fontStyle;
+      for (var i = 0; i < metin.length; i += 1) {
+        var ch = metin.charAt(i);
+        if (ch === " " || ch === " ") continue;
+        var aralik = document.createRange();
+        aralik.setStart(dugum, i);
+        aralik.setEnd(dugum, i + 1);
+        var r = aralik.getBoundingClientRect();
+        if (r.width === 0 && r.height === 0) continue;
+        if (r.bottom < 0 || r.top > window.innerHeight) continue;
+        parcalar.push({ ch: ch, x: r.left, y: r.top, renk: renk, agirlik: agirlik, egim: egim });
+      }
+    }
+
+    ekran.style.visibility = "hidden";
+
+    for (var j = 0; j < parcalar.length; j += 1) {
+      var p = parcalar[j];
+      var s = document.createElement("span");
+      s.className = "dokulen";
+      s.textContent = p.ch;
+      s.style.left = p.x + "px";
+      s.style.top = p.y + "px";
+      s.style.color = p.renk;
+      s.style.fontWeight = p.agirlik;
+      s.style.fontStyle = p.egim;
+      var dx = Math.random() * 80 - 40;
+      var rot = Math.random() * 140 - 70;
+      var sure = 1.1 + Math.random() * 1.4;
+      var gecik = Math.random() * 0.55;
+      s.style.setProperty("--dx", dx.toFixed(1) + "px");
+      s.style.setProperty("--rot", rot.toFixed(1) + "deg");
+      s.style.animationDuration = sure.toFixed(2) + "s";
+      s.style.animationDelay = gecik.toFixed(2) + "s";
+      if (sure + gecik > enGec) enGec = sure + gecik;
+      katman.appendChild(s);
+    }
+
+    setTimeout(function () {
+      katman.remove();
+      ekran.style.visibility = "";
+      ekran.innerHTML = "";
+      sonImlec();
+    }, Math.round((enGec + 0.25) * 1000));
+  }
+
   /* --- Sonraki sahneye gec ----------------------------------------------- */
   async function sonrakiSahne() {
     if (sahneNo >= sahneler.length) return;
@@ -267,6 +351,8 @@
       devamGoster();
     } else {
       sonImlec();
+      sonHintGoster();
+      bittiEffektBekliyor = true;
     }
   }
 
@@ -279,6 +365,11 @@
     if (devamBekliyor) {
       devamBekliyor = false;
       sonrakiSahne();
+      return;
+    }
+    if (bittiEffektBekliyor) {
+      bittiEffektBekliyor = false;
+      harfDokulmesi();
     }
   }
 
