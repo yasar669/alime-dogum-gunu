@@ -19,6 +19,16 @@
   var dinleyiciAcik = false; // genel girdi dinleyicisi takildi mi
   var bittiEffektBekliyor = false; // son sahne sonrasi harf dokulme bekleniyor mu
 
+  /* --- Arka plan muzigi (gizli YouTube gomme oynatici) ------------------- */
+  var MUZIK_ID = "dGsfuXGU0K4"; // Semicenk - Canin Saglosun (resmi ses)
+  var SES_DUZEY = 22;           // arka plan icin kisik (0-100)
+  var oynatici = null;          // YT.Player ornegi
+  var muzikHazir = false;       // oynatici hazir mi
+  var sesAcik = true;           // kullanici susturduysa false
+  var baslatildi = false;       // calma istegi verildi mi
+  var sesGosterildi = false;    // ses dugmesi DOM'a eklendi mi
+  var sesDugmesi = null;
+
   /* --- Acilis (bekleme) sahnesi ------------------------------------------ */
   var acilis = [
     { t: "ALİME İŞLETİM SİSTEMİ  -  sürüm 21.0", c: "baslik2" },
@@ -431,6 +441,7 @@
     // Genel dinleyicileri bu olay bittikten SONRA tak ki ayni tiklamayi
     // yanlislikla "devam" olarak algilamayalim.
     setTimeout(dinleyicileriTak, 0);
+    muzikCal();   // dokunus = kullanici jesti; muzik burada baslar
     sonrakiSahne();
   }
 
@@ -438,6 +449,105 @@
   async function baslat() {
     await sahneYaz(acilis);
     dilekDugmesiGoster();
+  }
+
+  /* ======================================================================= */
+  /* Arka plan muzigi                                                        */
+  /* ======================================================================= */
+  /* Telif: sarki dosyasi repoya konmaz; resmi YouTube kaynagi gomulur.
+     Tarayicilar sese ancak kullanici dokunusundan sonra izin verdigi icin
+     muzik "dilek tut" aninda (muzikCal) baslar. */
+  function muzikKur() {
+    // Gizli oynatici yuvasi (API bu div'i iframe ile degistirir)
+    var sarmal = document.createElement("div");
+    sarmal.className = "muzik-gizli";
+    sarmal.setAttribute("aria-hidden", "true");
+    var yuva = document.createElement("div");
+    yuva.id = "muzik-yuva";
+    sarmal.appendChild(yuva);
+    document.body.appendChild(sarmal);
+
+    // API hazir olunca oynaticiyi olustur
+    window.onYouTubeIframeAPIReady = function () {
+      try {
+        oynatici = new YT.Player(yuva, {
+          videoId: MUZIK_ID,
+          width: "200",
+          height: "120",
+          playerVars: {
+            autoplay: 0, controls: 0, disablekb: 1,
+            loop: 1, playlist: MUZIK_ID, modestbranding: 1,
+            playsinline: 1, rel: 0, fs: 0
+          },
+          events: {
+            onReady: function () {
+              muzikHazir = true;
+              try { oynatici.setVolume(SES_DUZEY); } catch (e) {}
+              if (baslatildi) muzikCal();
+            },
+            onStateChange: function (ev) {
+              // tek video dongusu icin guvence
+              if (ev && ev.data === 0) {
+                try { oynatici.seekTo(0); oynatici.playVideo(); } catch (e) {}
+              }
+            },
+            onError: function () {}
+          }
+        });
+      } catch (e) {}
+    };
+
+    // API betigini yukle (basarisiz olursa sayfa sessizce calismaya devam eder)
+    var s = document.createElement("script");
+    s.src = "https://www.youtube.com/iframe_api";
+    s.async = true;
+    document.head.appendChild(s);
+  }
+
+  function muzikCal() {
+    baslatildi = true;
+    sesDugmesiGoster();
+    if (!muzikHazir || !oynatici) return;
+    try {
+      oynatici.setVolume(SES_DUZEY);
+      if (sesAcik) {
+        oynatici.unMute();
+        oynatici.playVideo();
+      }
+    } catch (e) {}
+  }
+
+  function sesDugmesiYaziGuncelle() {
+    if (!sesDugmesi) return;
+    sesDugmesi.textContent = sesAcik ? "[ ses: açık ]" : "[ ses: kapalı ]";
+    sesDugmesi.setAttribute(
+      "aria-label", sesAcik ? "Sesi kapat" : "Sesi aç"
+    );
+  }
+
+  function sesDugmesiGoster() {
+    if (sesGosterildi) return;
+    sesGosterildi = true;
+    sesDugmesi = document.createElement("button");
+    sesDugmesi.type = "button";
+    sesDugmesi.className = "ses-dugme";
+    sesDugmesiYaziGuncelle();
+    sesDugmesi.addEventListener("click", function (e) {
+      e.stopPropagation(); // sahneyi ilerletme
+      sesDegistir();
+    });
+    document.body.appendChild(sesDugmesi);
+  }
+
+  function sesDegistir() {
+    sesAcik = !sesAcik;
+    if (oynatici && muzikHazir) {
+      try {
+        if (sesAcik) { oynatici.unMute(); oynatici.playVideo(); }
+        else { oynatici.mute(); }
+      } catch (e) {}
+    }
+    sesDugmesiYaziGuncelle();
   }
 
   /* ======================================================================= */
@@ -489,6 +599,7 @@
   /* --- Calistir ---------------------------------------------------------- */
   function calistir() {
     akisBaslat();
+    muzikKur();   // API'yi onceden yukle ki dilek aninda hazir olsun
     baslat();
   }
 

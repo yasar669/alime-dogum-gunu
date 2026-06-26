@@ -219,6 +219,43 @@ body {
   50%      { box-shadow: 0 0 26px rgba(86, 225, 230, 0.30); }
 }
 
+/* Arka plan muzigi -------------------------------------------------------- */
+.muzik-gizli {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.ses-dugme {
+  position: fixed;
+  right: 12px;
+  bottom: 10px;
+  z-index: 5;
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--camgobegi);
+  background: rgba(13, 18, 28, 0.7);
+  border: 1px solid var(--camgobegi);
+  border-radius: 6px;
+  padding: 5px 9px;
+  cursor: pointer;
+  opacity: 0.72;
+  transition: opacity 0.2s ease, box-shadow 0.2s ease;
+}
+.ses-dugme:hover,
+.ses-dugme:focus-visible {
+  opacity: 1;
+  box-shadow: 0 0 16px rgba(86, 225, 230, 0.28);
+  outline: none;
+}
+
 /* Hareket azaltma tercihi ------------------------------------------------- */
 /* Final harf dokulme efekti ----------------------------------------------- */
 .dokulen-katman {
