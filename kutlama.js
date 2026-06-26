@@ -21,7 +21,7 @@
 
   /* --- Acilis (bekleme) sahnesi ------------------------------------------ */
   var acilis = [
-    { t: "ALİME İŞLETİM SİSTEMİ  -  sürüm 26.06", c: "baslik2" },
+    { t: "ALİME İŞLETİM SİSTEMİ  -  sürüm 21.0", c: "baslik2" },
     { t: "[ çekirdek yükleniyor ............ tamam ]", c: "durum" },
     { t: "[ anılar bağlanıyor .............. tamam ]", c: "durum" },
     { t: "[ dostluk modülü hazırlanıyor .... tamam ]", c: "durum" },
