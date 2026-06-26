@@ -5,7 +5,7 @@
 (function () {
   "use strict";
 
-  var ISTEM = "alime@dogumgunu:~$";
+  var ISTEM = "alime@doğumgünü:~$";
   var ekran = document.getElementById("ekran");
 
   var azalt = window.matchMedia &&
