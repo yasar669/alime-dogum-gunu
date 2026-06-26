@@ -1,0 +1,8 @@
+# Ozel veriler asla yayinlanmaz (WhatsApp yazismasi vb.)
+# Projede yayinlanacak mesru bir .txt yok; tum .txt dosyalari haric tutulur.
+*.txt
+
+# OS / editor artiklari
+.DS_Store
+Thumbs.db
+*~

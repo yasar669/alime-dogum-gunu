@@ -25,7 +25,7 @@
     { t: "[ çekirdek yükleniyor ............ tamam ]", c: "durum" },
     { t: "[ anılar bağlanıyor .............. tamam ]", c: "durum" },
     { t: "[ dostluk modülü hazırlanıyor .... tamam ]", c: "durum" },
-    { t: "oturum açıldı: alime    yetki: yol arkadaşı", c: "soluk" },
+    { t: "oturum açıldı: sayın savcım   yetki: müstakbel savcı", c: "soluk" },
     { t: "", c: "bos" },
     { t: "önce bir şey gerekiyor: bir dilek tut.", c: "metin" }
   ];
@@ -51,14 +51,14 @@
     /* Sahne 2 - anilar dizini */
     [
       { t: ISTEM + " ls ~/anilar/", c: "komut" },
-      { t: "ayni_siralar.txt   ayni_yol.txt   nice_yillar.txt", c: "dizin" },
+      { t: "19_agustos_2024.txt   ayni_yol.txt   yoldaslik.txt", c: "dizin" },
       { t: "", c: "bos" },
       { t: ISTEM + " cat ~/anilar/ayni_yol.txt", c: "komut" },
-      { t: "\"Yıllar önce aynı sıraları paylaştık,", c: "alinti" },
-      { t: " sonra aynı hayalin peşine düştük;", c: "alinti" },
-      { t: " aynı yola baş koyduk, hâlâ yan yanayız.", c: "alinti" },
-      { t: " Yolun nereye giderse gitsin,", c: "alinti" },
-      { t: " o yolda bir dostun olduğunu unutma.\"", c: "alinti" }
+      { t: "\"19 Ağustos 2024: aynı üniversiteyi", c: "alinti" },
+      { t: " kazandık, bir 'merhaba' ile başladı.", c: "alinti" },
+      { t: " Aynı şehir, aynı yol: hukuk.", c: "alinti" },
+      { t: " 'Korkma, arkandayım' dedin;", c: "alinti" },
+      { t: " o gün bugündür hep yoldaşız.\"", c: "alinti" }
     ],
 
     /* Sahne 3 - karar (hukuk gondermesi) */
@@ -68,8 +68,8 @@
       { t: "----------------------------------------", c: "cizgi" },
       { t: "               K A R A R", c: "baslik" },
       { t: "----------------------------------------", c: "cizgi" },
-      { t: "DOSYA   : dostluk / alime", c: "metin" },
-      { t: "KONU    : doğum günü kutlaması", c: "metin" },
+      { t: "DOSYA   : dostluk / sayın savcım", c: "metin" },
+      { t: "KONU    : sayın savcının doğum günü", c: "metin" },
       { t: "", c: "bos" },
       { t: "GEREKÇE : Yılların tanıklığı ve sayısız", c: "metin" },
       { t: "          güzel anının delili incelendi.", c: "metin" },
@@ -79,7 +79,7 @@
       { t: "          doğduğuna, süresiz ve koşulsuz", c: "metin" },
       { t: "          olarak karar verilmiştir.", c: "metin" },
       { t: "----------------------------------------", c: "cizgi" },
-      { t: "                    imza: Yaşar Nigiz", c: "imza" }
+      { t: "             imza: Başkanın, Yaşar Nigiz", c: "imza" }
     ],
 
     /* Sahne 4 - bildiri (sadakat sozu) */
@@ -94,11 +94,13 @@
       { t: "derslerdeki başarısızlığı, parasızlığı,", c: "metin" },
       { t: "maddi sıkıntıları, hepsini gördük.", c: "metin" },
       { t: "", c: "bos" },
-      { t: "Ancak sayın Alime Çoksöyler'in", c: "metin" },
-      { t: "sayesinde yalnızlığı hiç yaşamadık.", c: "metin" },
-      { t: "Bu süreçte hep, ama hep beraberdik.", c: "metin" },
+      { t: "Ancak sayın savcım Alime", c: "metin" },
+      { t: "Çoksöyler'in sayesinde", c: "metin" },
+      { t: "yalnızlığı hiç yaşamadık.", c: "metin" },
+      { t: "'Korkma, arkandayım' dedin; ne gelse", c: "metin" },
+      { t: "'hallederiz' dedik, hep beraberdik.", c: "metin" },
       { t: "", c: "bos" },
-      { t: "Bu nedenle sayın Çoksöyler'e sevgi,", c: "metin" },
+      { t: "Bu nedenle sayın savcıma sevgi,", c: "metin" },
       { t: "saygı ve şükranlarımı sunuyorum.", c: "vurgu" },
       { t: "----------------------------------------", c: "cizgi" },
       { t: "                    imza: Yaşar Nigiz", c: "imza" }
@@ -140,10 +142,11 @@
       { t: "Yürüdüğün yolda hep başarı, hep huzur", c: "metin" },
       { t: "yanında olsun.", c: "metin" },
       { t: "", c: "bos" },
-      { t: "İyi ki doğdun, iyi ki yanımdasın.", c: "vurgu" },
+      { t: "İyi ki doğdun, iyi ki yoldaşımsın.", c: "vurgu" },
+      { t: "Ne gelirse gelsin, hallederiz.", c: "vurgu" },
       { t: "Nice yaşlara, nice güzel yıllara.", c: "vurgu" },
       { t: "", c: "bos" },
-      { t: "                          - Yaşar Nigiz", c: "imza" },
+      { t: "                Başkanın — Yaşar Nigiz", c: "imza" },
       { t: "", c: "bos" },
       { t: "(bu pencereyi kapatabilirsin ama", c: "soluk" },
       { t: " dostluğumuz hep açık kalacak.)", c: "soluk" }
