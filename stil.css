@@ -1,0 +1,230 @@
+/* ==========================================================================
+   Alime icin terminal gorunumlu dogum gunu kutlamasi
+   Tema: modern koyu zemin, camgobegi (cyan) + eflatun (mor) vurgular
+   ========================================================================== */
+
+:root {
+  --zemin:        #070a12;   /* en koyu arka plan */
+  --pencere:      rgba(13, 18, 28, 0.86);
+  --pencere-cer:  #1c2740;   /* pencere cercevesi */
+  --cubuk:        #0d1422;   /* baslik cubugu */
+  --metin:        #cfe9ee;   /* genel yazi */
+  --camgobegi:    #56e1e6;   /* ana vurgu */
+  --eflatun:      #c792ea;   /* ikinci vurgu */
+  --yesil:        #7ee0a4;   /* tamam / istem */
+  --soluk:        #5d6b85;   /* sonuk yazi */
+  --sari:         #e8c98a;
+  --golge:        rgba(86, 225, 230, 0.18);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, #11203a 0%, transparent 60%),
+    var(--zemin);
+  color: var(--metin);
+  font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", "Consolas",
+               "Liberation Mono", "DejaVu Sans Mono", monospace;
+  overflow: hidden;
+}
+
+/* Arka planda akan karakterler ------------------------------------------- */
+#akis {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Terminal penceresi ------------------------------------------------------ */
+.pencere {
+  position: relative;
+  z-index: 1;
+  width: min(760px, 100%);
+  min-width: 0;            /* flexbox min-width:auto tuzagini engelle */
+  max-width: 100%;
+  height: min(86vh, 680px);
+  display: flex;
+  flex-direction: column;
+  background: var(--pencere);
+  border: 1px solid var(--pencere-cer);
+  border-radius: 12px;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(86, 225, 230, 0.05),
+    0 0 60px rgba(86, 225, 230, 0.06);
+  overflow: hidden;
+  backdrop-filter: blur(2px);
+}
+
+.baslik-cubugu {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--cubuk);
+  border-bottom: 1px solid var(--pencere-cer);
+  user-select: none;
+}
+
+.nokta {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.nokta-kirmizi { background: #ff5f56; }
+.nokta-sari    { background: #ffbd2e; }
+.nokta-yesil   { background: #27c93f; }
+
+.baslik {
+  margin-left: 10px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--soluk);
+}
+
+/* Yazi alani -------------------------------------------------------------- */
+.ekran {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 18px clamp(14px, 3.5vw, 26px) 24px;
+  font-size: clamp(11.5px, 3.1vw, 15px);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: normal;
+  scrollbar-width: thin;
+  scrollbar-color: var(--pencere-cer) transparent;
+}
+.ekran::-webkit-scrollbar { width: 8px; }
+.ekran::-webkit-scrollbar-thumb {
+  background: var(--pencere-cer);
+  border-radius: 8px;
+}
+
+/* Satir turleri ----------------------------------------------------------- */
+.satir { min-height: 1.2em; }
+.satir.bos { min-height: 0.7em; }
+
+.komut   { color: var(--metin); }
+.istem   { color: var(--yesil); font-weight: 600; }
+.durum   { color: var(--soluk); }
+.ok      { color: var(--yesil); }
+.metin   { color: var(--metin); }
+.dizin   { color: var(--camgobegi); }
+.alinti  { color: var(--eflatun); font-style: italic; }
+.vurgu   { color: var(--camgobegi); }
+.cizgi   { color: #34507a; overflow-wrap: anywhere; }
+.soluk   { color: var(--soluk); font-style: italic; }
+.imza    { color: var(--eflatun); }
+
+.baslik2 {
+  color: var(--eflatun);
+  letter-spacing: 0.06em;
+}
+
+.baslik {
+  /* not: pencere baslik cubugundaki .baslik ile karismasin diye
+     yazi alanindaki buyuk baslik icin .ekran .satir.baslik kullanilir */
+}
+
+.ekran .satir.baslik {
+  color: var(--camgobegi);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 12px var(--golge);
+}
+
+/* Dilek dugmesi ----------------------------------------------------------- */
+.dilek-alan {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.dilek-dugme {
+  font-family: inherit;
+  font-size: clamp(13px, 3.6vw, 17px);
+  letter-spacing: 0.12em;
+  color: var(--camgobegi);
+  background: transparent;
+  border: 1px solid var(--camgobegi);
+  border-radius: 8px;
+  padding: 12px 22px;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease, background 0.25s ease, transform 0.15s ease;
+  box-shadow: 0 0 14px rgba(86, 225, 230, 0.12);
+  animation: nabiz 1.8s ease-in-out infinite;
+}
+.dilek-dugme:hover,
+.dilek-dugme:focus-visible {
+  background: rgba(86, 225, 230, 0.10);
+  box-shadow: 0 0 26px rgba(86, 225, 230, 0.35);
+  outline: none;
+  transform: translateY(-1px);
+}
+.dilek-dugme:active { transform: translateY(0); }
+
+.ipucu {
+  margin-top: 12px;
+  color: var(--soluk);
+  font-style: italic;
+  font-size: clamp(11px, 3vw, 14px);
+}
+
+/* Devam satiri ve imlec --------------------------------------------------- */
+.devam {
+  margin-top: 14px;
+  color: var(--sari);
+  animation: solma 1.2s ease-in-out infinite;
+}
+
+.imlec {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.16em;
+  background: var(--camgobegi);
+  animation: yanip 1s steps(1) infinite;
+}
+
+@keyframes yanip {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes solma {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+@keyframes nabiz {
+  0%, 100% { box-shadow: 0 0 14px rgba(86, 225, 230, 0.12); }
+  50%      { box-shadow: 0 0 26px rgba(86, 225, 230, 0.30); }
+}
+
+/* Hareket azaltma tercihi ------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .dilek-dugme,
+  .devam,
+  .imlec {
+    animation: none;
+  }
+  #akis { display: none; }
+}
