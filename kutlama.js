@@ -81,7 +81,29 @@
       { t: "                    imza: Yaşar Nigiz", c: "imza" }
     ],
 
-    /* Sahne 4 - dilek muhru (bastaki dilegin karsiligi) */
+    /* Sahne 4 - bildiri (sadakat sozu) */
+    [
+      { t: ISTEM + " bildiri oku", c: "komut" },
+      { t: "", c: "bos" },
+      { t: "----------------------------------------", c: "cizgi" },
+      { t: "             B İ L D İ R İ", c: "baslik" },
+      { t: "----------------------------------------", c: "cizgi" },
+      { t: "Yaşar Nigiz olarak; yalanı,", c: "metin" },
+      { t: "adaletsizliği, ihaneti, zulmü,", c: "metin" },
+      { t: "derslerdeki başarısızlığı, parasızlığı,", c: "metin" },
+      { t: "maddi sıkıntıları, hepsini gördük.", c: "metin" },
+      { t: "", c: "bos" },
+      { t: "Ancak sayın Alime Çoksöyler'in", c: "metin" },
+      { t: "sayesinde yalnızlığı hiç yaşamadık.", c: "metin" },
+      { t: "Bu süreçte hep, ama hep beraberdik.", c: "metin" },
+      { t: "", c: "bos" },
+      { t: "Bu nedenle sayın Çoksöyler'e sevgi,", c: "metin" },
+      { t: "saygı ve şükranlarımı sunuyorum.", c: "vurgu" },
+      { t: "----------------------------------------", c: "cizgi" },
+      { t: "                    imza: Yaşar Nigiz", c: "imza" }
+    ],
+
+    /* Sahne 5 - dilek muhru (bastaki dilegin karsiligi) */
     [
       { t: ISTEM + " dilek durumu", c: "komut" },
       { t: "", c: "bos" },
@@ -98,7 +120,7 @@
       { t: "hem bu yıl, hem her yıl.", c: "vurgu" }
     ],
 
-    /* Sahne 5 - kapanis mesaji */
+    /* Sahne 6 - kapanis mesaji */
     [
       { t: ISTEM + " cat ~/dilek/yeni_yas.txt", c: "komut" },
       { t: "", c: "bos" },
