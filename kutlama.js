@@ -21,7 +21,9 @@
 
   /* --- Arka plan muzigi (gizli YouTube gomme oynatici) ------------------- */
   var MUZIK_ID = "dGsfuXGU0K4"; // Semicenk - Canin Saglosun (resmi ses)
-  var SES_DUZEY = 22;           // arka plan icin kisik (0-100)
+  var SES_DUZEY = 60;           // ortak ses duzeyi (0-100); Aziz sesi de bunun
+                                // kesriyle (SES_DUZEY/100) calar ki seviyeler esit olsun
+  var ytFadeTimer = null;       // YouTube ses gecisi (fade) zamanlayicisi
   var oynatici = null;          // YT.Player ornegi
   var muzikHazir = false;       // oynatici hazir mi
   var sesAcik = true;           // kullanici susturduysa false
@@ -506,9 +508,10 @@
           width: "200",
           height: "120",
           playerVars: {
+            // Not: loop/playlist KULLANILMAZ; dongu asagidaki ENDED isleyicisiyle
+            // tek elden yapilir (cift dongu sarkiyi tuhaf yere atliyordu).
             autoplay: 0, controls: 0, disablekb: 1,
-            loop: 1, playlist: MUZIK_ID, modestbranding: 1,
-            playsinline: 1, rel: 0, fs: 0
+            modestbranding: 1, playsinline: 1, rel: 0, fs: 0
           },
           events: {
             onReady: function () {
@@ -535,15 +538,38 @@
     document.head.appendChild(s);
   }
 
+  /* YouTube ses seviyesini 'hedef'e yumusakca getir (fade) */
+  function ytFade(hedef, sure, bitince) {
+    if (!oynatici || !muzikHazir) { if (bitince) bitince(); return; }
+    if (ytFadeTimer) { clearInterval(ytFadeTimer); ytFadeTimer = null; }
+    var bas = hedef;
+    try { bas = oynatici.getVolume(); } catch (e) {}
+    if (typeof bas !== "number" || isNaN(bas)) bas = hedef;
+    var adim = Math.max(1, Math.round(sure / 50));
+    var n = 0;
+    ytFadeTimer = setInterval(function () {
+      n += 1;
+      var v = bas + (hedef - bas) * (n / adim);
+      try { oynatici.setVolume(Math.max(0, Math.min(100, Math.round(v)))); } catch (e) {}
+      if (n >= adim) {
+        clearInterval(ytFadeTimer); ytFadeTimer = null;
+        if (bitince) bitince();
+      }
+    }, 50);
+  }
+
   function muzikCal() {
     baslatildi = true;
     sesDugmesiGoster();
     if (!muzikHazir || !oynatici) return;
     try {
-      oynatici.setVolume(SES_DUZEY);
       if (sesAcik) {
+        oynatici.setVolume(0);
         oynatici.unMute();
         oynatici.playVideo();
+        ytFade(SES_DUZEY, 1200);   // yumusak acilis
+      } else {
+        oynatici.setVolume(SES_DUZEY);
       }
     } catch (e) {}
   }
@@ -579,6 +605,7 @@
           oynatici.mute();
         } else if (!azizCaliyor) {
           // konusma calmiyorsa arka plan muzigine don
+          oynatici.setVolume(SES_DUZEY);
           oynatici.unMute();
           oynatici.playVideo();
         }
@@ -625,7 +652,7 @@
       azizOlustur();
       azizSes.muted = !sesAcik;
       azizSes.currentTime = 0;
-      azizSes.volume = 0.9;
+      azizSes.volume = SES_DUZEY / 100;  // arka plan muzigiyle ayni seviye
       azizCaliyor = true;
       var p = azizSes.play();
       if (p && p.catch) p.catch(function () {});
@@ -638,16 +665,24 @@
   }
 
   function muzikDurdurGecici() {
-    if (oynatici && muzikHazir) {
-      try { oynatici.pauseVideo(); } catch (e) {}
-    }
     muzikDuraklatildi = true;
+    if (oynatici && muzikHazir) {
+      // kisarak durdur (sert kesme yerine yumusak gecis)
+      ytFade(0, 500, function () {
+        try { oynatici.pauseVideo(); } catch (e) {}
+      });
+    }
   }
 
   function muzigeDon() {
     muzikDuraklatildi = false;
     if (oynatici && muzikHazir && sesAcik && !azizCaliyor) {
-      try { oynatici.unMute(); oynatici.playVideo(); } catch (e) {}
+      try {
+        oynatici.setVolume(0);
+        oynatici.unMute();
+        oynatici.playVideo();
+      } catch (e) {}
+      ytFade(SES_DUZEY, 1500);   // yavasca geri ac (konum farki sert duyulmasin)
     }
   }
 
