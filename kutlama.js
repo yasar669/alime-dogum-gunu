@@ -21,8 +21,8 @@
 
   /* --- Arka plan muzigi (gizli YouTube gomme oynatici) ------------------- */
   var MUZIK_ID = "dGsfuXGU0K4"; // Semicenk - Canin Saglosun (resmi ses)
-  var SES_DUZEY = 60;           // ortak ses duzeyi (0-100); Aziz sesi de bunun
-                                // kesriyle (SES_DUZEY/100) calar ki seviyeler esit olsun
+  var SES_DUZEY = 60;           // arka plan muzigi normal seviyesi (0-100)
+  var SES_KIS = 28;             // bildiride konusma sirasinda arka plan bu seviyeye kisilir
   var ytFadeTimer = null;       // YouTube ses gecisi (fade) zamanlayicisi
   var oynatici = null;          // YT.Player ornegi
   var muzikHazir = false;       // oynatici hazir mi
@@ -35,7 +35,6 @@
   var BILDIRI_INDEX = 3;        // sahneler[] icinde bildiri sahnesinin sirasi
   var azizSes = null;           // konusma ses kirpintisi (HTMLAudioElement)
   var azizCaliyor = false;      // konusma sesi su an caliyor mu
-  var muzikDuraklatildi = false;// arka plan muzigi gecici durduruldu mu
   var bildiriModu = false;      // bildiri ozel akisi suruyor mu
   var bildiriGovdeBasladi = false; // senkron govde basladi mi
   var bildiriAtlaFn = null;     // senkron govdeyi atla (kullanici dokununca)
@@ -111,7 +110,7 @@
 
     /* Sahne 4 - bildiri (sadakat sozu)
        Bu sahne ozeldir: ust cerceve normal yazilir; 'at' damgali satirlar,
-       Aziz Yildirim konusmasinin sesiyle (bildiri-ses.m4a) senkron belirir.
+       Aziz Yildirim'in temiz sesiyle (sadece_aziz.m4a) senkron belirir.
        'at' = ses kirpintisinin basindan itibaren saniye. */
     [
       { t: ISTEM + " bildiri oku", c: "komut" },
@@ -603,9 +602,9 @@
       try {
         if (!sesAcik) {
           oynatici.mute();
-        } else if (!azizCaliyor) {
-          // konusma calmiyorsa arka plan muzigine don
-          oynatici.setVolume(SES_DUZEY);
+        } else {
+          // konusma calarken arka plan kisik kalir, yoksa normal seviye
+          oynatici.setVolume(azizCaliyor ? SES_KIS : SES_DUZEY);
           oynatici.unMute();
           oynatici.playVideo();
         }
@@ -617,16 +616,18 @@
   /* ======================================================================= */
   /* Bildiri sahnesi: Aziz Yildirim sesi ile senkron                         */
   /* ======================================================================= */
-  /* Bildiri acilinca arka plan Canin Saglosun durur, kirpilmis konusma sesi
-     (bildiri-ses.m4a, "Fenerbahce camiasi olarak"tan baslar) calar; satirlar
-     'at' zamanlarinda belirir; ses bitince arka plan muzigine donulur. */
+  /* Bildiri acilinca arka plan Canin Saglosun DURMAZ, sadece kisilir; muzikten
+     ayiklanmis temiz konusma sesi (sadece_aziz.m4a, "Fenerbahce camiasi
+     olarak"tan baslar) ustune biner ve satirlar 'at' zamanlarinda belirir;
+     konusma bitince arka plan normal seviyeye geri yukselir. */
   function azizOlustur() {
     if (azizSes) return;
-    azizSes = new Audio("bildiri-ses.m4a?v=25");
+    // Muzikten ayiklanmis temiz konusma sesi (Demucs vokal kanali)
+    azizSes = new Audio("sadece_aziz.m4a?v=27");
     azizSes.preload = "auto";
     azizSes.addEventListener("ended", function () {
       azizCaliyor = false;
-      muzigeDon();
+      muzikAc();
     });
   }
 
@@ -652,7 +653,7 @@
       azizOlustur();
       azizSes.muted = !sesAcik;
       azizSes.currentTime = 0;
-      azizSes.volume = SES_DUZEY / 100;  // arka plan muzigiyle ayni seviye
+      azizSes.volume = 1.0;  // temiz konusma onde; arka plan kisilir
       azizCaliyor = true;
       var p = azizSes.play();
       if (p && p.catch) p.catch(function () {});
@@ -661,28 +662,21 @@
 
   function azizDurdur() {
     if (azizSes) { try { azizSes.pause(); } catch (e) {} }
-    if (azizCaliyor) { azizCaliyor = false; muzigeDon(); }
+    if (azizCaliyor) { azizCaliyor = false; muzikAc(); }
   }
 
-  function muzikDurdurGecici() {
-    muzikDuraklatildi = true;
+  /* Bildiride: arka plan muzigini DURDURMA, sadece kis (konusmaya yer ac).
+     Boylece sarki kesintisiz akar, "alakasiz yere atlama" hissi olmaz. */
+  function muzikKis() {
     if (oynatici && muzikHazir) {
-      // kisarak durdur (sert kesme yerine yumusak gecis)
-      ytFade(0, 500, function () {
-        try { oynatici.pauseVideo(); } catch (e) {}
-      });
+      ytFade(SES_KIS, 500);
     }
   }
 
-  function muzigeDon() {
-    muzikDuraklatildi = false;
-    if (oynatici && muzikHazir && sesAcik && !azizCaliyor) {
-      try {
-        oynatici.setVolume(0);
-        oynatici.unMute();
-        oynatici.playVideo();
-      } catch (e) {}
-      ytFade(SES_DUZEY, 1500);   // yavasca geri ac (konum farki sert duyulmasin)
+  function muzikAc() {
+    if (oynatici && muzikHazir && sesAcik) {
+      try { oynatici.unMute(); oynatici.playVideo(); } catch (e) {}
+      ytFade(SES_DUZEY, 1200);   // arka plani yavasca normal seviyeye getir
     }
   }
 
@@ -735,8 +729,8 @@
     }
     yaziliyor = false;
 
-    // 2) Arka plan muzigini durdur, konusma sesini baslat
-    muzikDurdurGecici();
+    // 2) Arka plan muzigini kis (durdurma yok), temiz konusma sesini baslat
+    muzikKis();
     azizBaslat();
     bildiriGovdeBasladi = true;
 
