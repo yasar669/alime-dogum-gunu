@@ -256,6 +256,15 @@ body {
   outline: none;
 }
 
+/* Bildiri senkron satir belirme ------------------------------------------- */
+.ekran .satir.beliren {
+  animation: belir 0.35s ease both;
+}
+@keyframes belir {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: none; }
+}
+
 /* Hareket azaltma tercihi ------------------------------------------------- */
 /* Final harf dokulme efekti ----------------------------------------------- */
 .dokulen-katman {
@@ -292,5 +301,6 @@ body {
   .imlec {
     animation: none;
   }
+  .ekran .satir.beliren { animation: none; }
   #akis { display: none; }
 }

@@ -2,6 +2,13 @@
 # Projede yayinlanacak mesru bir .txt yok; tum .txt dosyalari haric tutulur.
 *.txt
 
+# Kaynak medya yayinlanmaz (ham video/ses). Sayfada yalnizca uretilen
+# kisa ses kirpintisi (.m4a/.mp3) kullanilir; o ayrica eklenir.
+*.mp4
+*.mov
+*.webm
+*.wav
+
 # OS / editor artiklari
 .DS_Store
 Thumbs.db

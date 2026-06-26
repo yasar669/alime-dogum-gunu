@@ -29,6 +29,15 @@
   var sesGosterildi = false;    // ses dugmesi DOM'a eklendi mi
   var sesDugmesi = null;
 
+  /* --- Bildiri sahnesi: Aziz Yildirim sesi senkronu --------------------- */
+  var BILDIRI_INDEX = 3;        // sahneler[] icinde bildiri sahnesinin sirasi
+  var azizSes = null;           // konusma ses kirpintisi (HTMLAudioElement)
+  var azizCaliyor = false;      // konusma sesi su an caliyor mu
+  var muzikDuraklatildi = false;// arka plan muzigi gecici durduruldu mu
+  var bildiriModu = false;      // bildiri ozel akisi suruyor mu
+  var bildiriGovdeBasladi = false; // senkron govde basladi mi
+  var bildiriAtlaFn = null;     // senkron govdeyi atla (kullanici dokununca)
+
   /* --- Acilis (bekleme) sahnesi ------------------------------------------ */
   var acilis = [
     { t: "ALİME İŞLETİM SİSTEMİ  -  sürüm 21.0", c: "baslik2" },
@@ -98,28 +107,31 @@
       { t: "             imza: Başkanın, Yaşar Nigiz", c: "imza" }
     ],
 
-    /* Sahne 4 - bildiri (sadakat sozu) */
+    /* Sahne 4 - bildiri (sadakat sozu)
+       Bu sahne ozeldir: ust cerceve normal yazilir; 'at' damgali satirlar,
+       Aziz Yildirim konusmasinin sesiyle (bildiri-ses.m4a) senkron belirir.
+       'at' = ses kirpintisinin basindan itibaren saniye. */
     [
       { t: ISTEM + " bildiri oku", c: "komut" },
       { t: "", c: "bos" },
       { t: "----------------------------------------", c: "cizgi" },
       { t: "             B İ L D İ R İ", c: "baslik" },
       { t: "----------------------------------------", c: "cizgi" },
-      { t: "Yaşar Nigiz olarak; yalanı,", c: "metin" },
-      { t: "adaletsizliği, ihaneti, zulmü,", c: "metin" },
-      { t: "derslerdeki başarısızlığı, parasızlığı,", c: "metin" },
-      { t: "maddi sıkıntıları, hepsini gördük.", c: "metin" },
-      { t: "", c: "bos" },
-      { t: "Ancak sayın savcım Alime", c: "metin" },
-      { t: "Çoksöyler'in sayesinde", c: "metin" },
-      { t: "yalnızlığı hiç yaşamadık.", c: "metin" },
-      { t: "'Korkma, arkandayım' dedin; ne gelse", c: "metin" },
-      { t: "'hallederiz' dedik, hep beraberdik.", c: "metin" },
-      { t: "", c: "bos" },
-      { t: "Bu nedenle sayın savcıma sevgi,", c: "metin" },
-      { t: "saygı ve şükranlarımı sunuyorum.", c: "vurgu" },
-      { t: "----------------------------------------", c: "cizgi" },
-      { t: "                    imza: Yaşar Nigiz", c: "imza" }
+      { t: "Yaşar Nigiz olarak; yalanı,", c: "metin", at: 0.3 },
+      { t: "adaletsizliği, ihaneti, zulmü,", c: "metin", at: 3.2 },
+      { t: "derslerdeki başarısızlığı, parasızlığı,", c: "metin", at: 4.5 },
+      { t: "maddi sıkıntıları, hepsini gördük.", c: "metin", at: 5.3 },
+      { t: "", c: "bos", at: 6.4 },
+      { t: "Ancak sayın savcım Alime", c: "metin", at: 8.4 },
+      { t: "Çoksöyler'in sayesinde", c: "metin", at: 9.3 },
+      { t: "yalnızlığı hiç yaşamadık.", c: "metin", at: 9.9 },
+      { t: "'Korkma, arkandayım' dedin; ne gelse", c: "metin", at: 12.0 },
+      { t: "'hallederiz' dedik, hep beraberdik.", c: "metin", at: 13.6 },
+      { t: "", c: "bos", at: 14.4 },
+      { t: "Bu nedenle sayın savcıma sevgi,", c: "metin", at: 15.1 },
+      { t: "saygı ve şükranlarımı sunuyorum.", c: "vurgu", at: 17.5 },
+      { t: "----------------------------------------", c: "cizgi", at: 19.0 },
+      { t: "                    imza: Yaşar Nigiz", c: "imza", at: 19.5 }
     ],
 
     /* Sahne 5 - dilek muhru (bastaki dilegin karsiligi) */
@@ -362,10 +374,16 @@
   /* --- Sonraki sahneye gec ----------------------------------------------- */
   async function sonrakiSahne() {
     if (sahneNo >= sahneler.length) return;
+    azizDurdur();            // onceki sahne bildiriyse konusmayi durdur, muzige don
     ekran.innerHTML = "";
     var sahne = sahneler[sahneNo];
+    var buBildiri = (sahneNo === BILDIRI_INDEX);
     sahneNo += 1;
-    await sahneYaz(sahne);
+    if (buBildiri) {
+      await bildiriYaz(sahne);
+    } else {
+      await sahneYaz(sahne);
+    }
     if (sahneNo < sahneler.length) {
       devamGoster();
     } else {
@@ -377,12 +395,25 @@
 
   /* --- Genel girdi: hizlandir ya da devam et ----------------------------- */
   function girdi() {
+    if (bildiriModu) {
+      // Ust cerceve yazilirken: daktiloyu hizlandir.
+      // Senkron govde sirasinda: govdeyi atla (ses calmaya devam eder).
+      if (!bildiriGovdeBasladi) {
+        hizlandir = true;
+      } else if (bildiriAtlaFn) {
+        var f = bildiriAtlaFn;
+        bildiriAtlaFn = null;
+        f();
+      }
+      return;
+    }
     if (yaziliyor) {
       hizlandir = true;
       return;
     }
     if (devamBekliyor) {
       devamBekliyor = false;
+      if (sahneNo === BILDIRI_INDEX) azizHazirla(); // jest icinde sesi kilitten cikar
       sonrakiSahne();
       return;
     }
@@ -541,13 +572,144 @@
 
   function sesDegistir() {
     sesAcik = !sesAcik;
+    if (azizSes) { azizSes.muted = !sesAcik; }
     if (oynatici && muzikHazir) {
       try {
-        if (sesAcik) { oynatici.unMute(); oynatici.playVideo(); }
-        else { oynatici.mute(); }
+        if (!sesAcik) {
+          oynatici.mute();
+        } else if (!azizCaliyor) {
+          // konusma calmiyorsa arka plan muzigine don
+          oynatici.unMute();
+          oynatici.playVideo();
+        }
       } catch (e) {}
     }
     sesDugmesiYaziGuncelle();
+  }
+
+  /* ======================================================================= */
+  /* Bildiri sahnesi: Aziz Yildirim sesi ile senkron                         */
+  /* ======================================================================= */
+  /* Bildiri acilinca arka plan Canin Saglosun durur, kirpilmis konusma sesi
+     (bildiri-ses.m4a, "Fenerbahce camiasi olarak"tan baslar) calar; satirlar
+     'at' zamanlarinda belirir; ses bitince arka plan muzigine donulur. */
+  function azizOlustur() {
+    if (azizSes) return;
+    azizSes = new Audio("bildiri-ses.m4a?v=25");
+    azizSes.preload = "auto";
+    azizSes.addEventListener("ended", function () {
+      azizCaliyor = false;
+      muzigeDon();
+    });
+  }
+
+  /* Dokunus (kullanici jesti) icinde ses ogesini "kilidini ac": boylece
+     sahne icinde sessiz boslukta cagrilan play() engellenmez. */
+  function azizHazirla() {
+    try {
+      azizOlustur();
+      azizSes.muted = true;
+      azizSes.currentTime = 0;
+      var p = azizSes.play();
+      if (p && p.then) {
+        p.then(function () {
+          try { azizSes.pause(); azizSes.currentTime = 0; } catch (e) {}
+          azizSes.muted = !sesAcik;
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+
+  function azizBaslat() {
+    try {
+      azizOlustur();
+      azizSes.muted = !sesAcik;
+      azizSes.currentTime = 0;
+      azizSes.volume = 0.9;
+      azizCaliyor = true;
+      var p = azizSes.play();
+      if (p && p.catch) p.catch(function () {});
+    } catch (e) {}
+  }
+
+  function azizDurdur() {
+    if (azizSes) { try { azizSes.pause(); } catch (e) {} }
+    if (azizCaliyor) { azizCaliyor = false; muzigeDon(); }
+  }
+
+  function muzikDurdurGecici() {
+    if (oynatici && muzikHazir) {
+      try { oynatici.pauseVideo(); } catch (e) {}
+    }
+    muzikDuraklatildi = true;
+  }
+
+  function muzigeDon() {
+    muzikDuraklatildi = false;
+    if (oynatici && muzikHazir && sesAcik && !azizCaliyor) {
+      try { oynatici.unMute(); oynatici.playVideo(); } catch (e) {}
+    }
+  }
+
+  /* Senkron govde satirini aninda (yumusak belirerek) ekle */
+  function bildiriSatirEkle(satir) {
+    var el = document.createElement("div");
+    el.className = "satir beliren " + (satir.c || "");
+    if (satir.t) {
+      el.textContent = satir.t;
+      satirBitir(el, satir);
+    }
+    ekran.appendChild(el);
+    kaydir();
+  }
+
+  /* Zaman damgali ('at') satirlari sirayla belirir; coz() son satirda */
+  function bildiriZamanliOynat(satirlar) {
+    return new Promise(function (coz) {
+      var i = 0;
+      var zaman = null;
+      function adim() {
+        bildiriSatirEkle(satirlar[i]);
+        i += 1;
+        if (i >= satirlar.length) { coz(); return; }
+        var delta = (satirlar[i].at - satirlar[i - 1].at) * 1000;
+        zaman = setTimeout(adim, Math.max(60, delta));
+      }
+      var ilk = (satirlar[0].at || 0) * 1000;
+      zaman = setTimeout(adim, Math.max(0, ilk));
+      bildiriAtlaFn = function () {
+        if (zaman) { clearTimeout(zaman); zaman = null; }
+        while (i < satirlar.length) { bildiriSatirEkle(satirlar[i]); i += 1; }
+        coz();
+      };
+    });
+  }
+
+  async function bildiriYaz(sahne) {
+    bildiriModu = true;
+    bildiriGovdeBasladi = false;
+    bildiriAtlaFn = null;
+
+    // 1) Ust cerceve ('at' tasimayan satirlar): normal daktilo
+    yaziliyor = true;
+    hizlandir = false;
+    var i = 0;
+    for (; i < sahne.length; i += 1) {
+      if (sahne[i].at != null) break;
+      await satirYaz(sahne[i]);
+    }
+    yaziliyor = false;
+
+    // 2) Arka plan muzigini durdur, konusma sesini baslat
+    muzikDurdurGecici();
+    azizBaslat();
+    bildiriGovdeBasladi = true;
+
+    // 3) Zaman damgali satirlar sesle senkron belirir
+    await bildiriZamanliOynat(sahne.slice(i));
+
+    bildiriModu = false;
+    bildiriAtlaFn = null;
   }
 
   /* ======================================================================= */
