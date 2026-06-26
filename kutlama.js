@@ -118,21 +118,21 @@
       { t: "----------------------------------------", c: "cizgi" },
       { t: "             B İ L D İ R İ", c: "baslik" },
       { t: "----------------------------------------", c: "cizgi" },
-      { t: "Yaşar Nigiz olarak; yalanı,", c: "metin", at: 0.3 },
-      { t: "adaletsizliği, ihaneti, zulmü,", c: "metin", at: 3.2 },
-      { t: "derslerdeki başarısızlığı, parasızlığı,", c: "metin", at: 4.5 },
-      { t: "maddi sıkıntıları, hepsini gördük.", c: "metin", at: 5.3 },
+      { t: "Yaşar Nigiz olarak; yalanı,", c: "metin", at: 0.2 },
+      { t: "adaletsizliği, ihaneti, zulmü,", c: "metin", at: 3.4 },
+      { t: "derslerdeki başarısızlığı, parasızlığı,", c: "metin", at: 4.6 },
+      { t: "maddi sıkıntıları, hepsini gördük.", c: "metin", at: 5.7 },
       { t: "", c: "bos", at: 6.4 },
-      { t: "Ancak sayın savcım Alime", c: "metin", at: 8.4 },
-      { t: "Çoksöyler'in sayesinde", c: "metin", at: 9.3 },
-      { t: "yalnızlığı hiç yaşamadık.", c: "metin", at: 9.9 },
-      { t: "'Korkma, arkandayım' dedin; ne gelse", c: "metin", at: 12.0 },
-      { t: "'hallederiz' dedik, hep beraberdik.", c: "metin", at: 13.6 },
-      { t: "", c: "bos", at: 14.4 },
-      { t: "Bu nedenle sayın savcıma sevgi,", c: "metin", at: 15.1 },
-      { t: "saygı ve şükranlarımı sunuyorum.", c: "vurgu", at: 17.5 },
-      { t: "----------------------------------------", c: "cizgi", at: 19.0 },
-      { t: "                    imza: Yaşar Nigiz", c: "imza", at: 19.5 }
+      { t: "Ancak sayın savcım Alime", c: "metin", at: 6.9 },
+      { t: "Çoksöyler'in sayesinde", c: "metin", at: 8.0 },
+      { t: "yalnızlığı hiç yaşamadık.", c: "metin", at: 8.7 },
+      { t: "'Korkma, arkandayım' dedin; ne gelse", c: "metin", at: 10.4 },
+      { t: "'hallederiz' dedik, hep beraberdik.", c: "metin", at: 11.9 },
+      { t: "", c: "bos", at: 13.4 },
+      { t: "Bu nedenle sayın savcıma sevgi,", c: "metin", at: 14.0 },
+      { t: "saygı ve şükranlarımı sunuyorum.", c: "vurgu", at: 17.0 },
+      { t: "----------------------------------------", c: "cizgi", at: 18.4 },
+      { t: "                    imza: Yaşar Nigiz", c: "imza", at: 18.8 }
     ],
 
     /* Sahne 5 - dilek muhru (bastaki dilegin karsiligi) */
@@ -616,14 +616,14 @@
   /* ======================================================================= */
   /* Bildiri sahnesi: Aziz Yildirim sesi ile senkron                         */
   /* ======================================================================= */
-  /* Bildiri acilinca arka plan Canin Saglosun DURMAZ, sadece kisilir; muzikten
-     ayiklanmis temiz konusma sesi (sadece_aziz.m4a, "Fenerbahce camiasi
-     olarak"tan baslar) ustune biner ve satirlar 'at' zamanlarinda belirir;
-     konusma bitince arka plan normal seviyeye geri yukselir. */
+  /* Bildiri acilinca arka plan Canin Saglosun DURMAZ, sadece kisilir; orijinal
+     divan kurulu konusmasindan kirpilmis TEMIZ ses (sadece_aziz.m4a, "Fenerbahce
+     camiasi olarak"tan baslar, muzik yok) ustune biner ve satirlar 'at'
+     zamanlarinda belirir; konusma bitince arka plan normal seviyeye yukselir. */
   function azizOlustur() {
     if (azizSes) return;
-    // Muzikten ayiklanmis temiz konusma sesi (Demucs vokal kanali)
-    azizSes = new Audio("sadece_aziz.m4a?v=27");
+    // Orijinal divan kurulu konusmasindan kirpilmis temiz ses (muzik yok)
+    azizSes = new Audio("sadece_aziz.m4a?v=28");
     azizSes.preload = "auto";
     azizSes.addEventListener("ended", function () {
       azizCaliyor = false;

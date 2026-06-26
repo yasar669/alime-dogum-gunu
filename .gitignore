@@ -9,6 +9,9 @@
 *.webm
 *.wav
 
+# Ses ayirma deneme adaylari (dinleyip secilecek; yayinlanmaz)
+aday*.m4a
+
 # OS / editor artiklari
 .DS_Store
 Thumbs.db
